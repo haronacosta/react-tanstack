@@ -2,20 +2,21 @@ import { useState } from "react";
 import { LoadingSpinner } from "../../shared";
 import { IssueList } from "../components/IssueList";
 import { LabelPicker } from "../components/LabelPicker";
-import { useIssues } from "../hooks";
+import { useIssuesInfinity } from "../hooks";
 import { State } from "../interface";
 
-export const ListView = () => {
+export const ListViewInfinity = () => {
   const [state, setState] = useState<State>(State.All);
 
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
-  const { issuesQuery, nextPage, prevPage, page } = useIssues({
+  const { issuesQuery } = useIssuesInfinity({
     state,
     selectedLabels,
   });
 
-  const issues = issuesQuery.data ?? [];
+  // Flatten pages coming from an infinite query into a single array of issues
+  const issues = issuesQuery.data ? issuesQuery.data.pages.flat() : [];
 
   const onLabelSelected = (label: string) => {
     if (selectedLabels.includes(label)) {
@@ -34,29 +35,26 @@ export const ListView = () => {
           <div>Error loading issues.</div>
         ) : (
           <>
-            <IssueList issues={issues} onStageChange={setState} state={state} />
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-sm text-gray-500">
-                Showing {issues.length} issues
-              </span>
-
-              <div className="flex flex-grow ml-auto gap-2 justify-end">
+            <div className="flex flex-col justify-center">
+              <IssueList
+                issues={issues}
+                onStageChange={setState}
+                state={state}
+              />
+              <div className="flex justify-center items-center mt-4">
                 <button
+                  onClick={() => issuesQuery.fetchNextPage()}
                   type="button"
-                  className="text-sm text-blue-500 rounded-sm px-2 py-1 hover:text-blue-600 transition-all"
-                  onClick={prevPage}
+                  className="text-md bg-blue-500 text-white w-full rounded-sm px-2 py-1 hover:bg-blue-600 transition-all disabled:bg-slate-500"
+                  disabled={!issuesQuery.hasNextPage || issuesQuery.isFetchingNextPage}
                 >
-                  Preview
-                </button>
-
-                <span>{page}</span>
-
-                <button
-                  type="button"
-                  className="text-sm text-blue-500 rounded-sm px-2 py-1 hover:text-blue-600 transition-all"
-                  onClick={nextPage}
-                >
-                  Next
+                 {
+                    issuesQuery.isFetchingNextPage
+                      ? "Loading..."
+                      : issuesQuery.hasNextPage
+                      ? "Load More"
+                      : "No more issues to load"
+                 }
                 </button>
               </div>
             </div>
