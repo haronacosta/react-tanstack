@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getLabels } from "../actions";
-import { GithubLabel } from '../interface';
+// import { GithubLabel } from '../interface';
 
 export const useLabels = () => {
 	const labelsQuery = useQuery({
@@ -18,7 +18,7 @@ export const useLabels = () => {
 				default: false,
 			} satisfies GithubLabel,
 		], */
-        initialData: [
+       /*  initialData: [
             {
 				id: 196858374,
 				node_id: "MDU6TGFiZWwxOTY4NTgzNzQ=",
@@ -27,7 +27,7 @@ export const useLabels = () => {
 				color: "e7e7e7",
 				default: false,
 			} satisfies GithubLabel,
-        ]
+        ] */
 	});
 
 	return {
